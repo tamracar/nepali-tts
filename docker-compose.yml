@@ -1,0 +1,13 @@
+
+services:
+  nepalitts:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./output:/app/output
+      - ./public:/app/public  # Add this line
+      - ./src:/app/src       # For development
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped

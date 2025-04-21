@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nepali TTS Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #audioPlayer {
+            margin-top: 20px;
+            width: 100%;
+        }
+        .loading {
+            display: none;
+            color: #666;
+        }
+    </style>
+
+<script src="https://cdn.jsdelivr.net/npm/nepali-keyboard@1.0.0/dist/nepali-keyboard.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nepali-keyboard@1.0.0/dist/nepali-keyboard.min.css">
+
+<div id="keyboard"></div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        new NepaliKeyboard(document.getElementById('nepaliText'), {
+            theme: 'light',
+            width: '100%',
+            height: '200px'
+        });
+    });
+</script>
+</head>
+<body>
+    <h1>Nepali Text-to-Speech Demo</h1>
+    <textarea id="nepaliText" placeholder="नेपाली टेक्स्ट यहाँ टाइप गर्नुहोस्..."></textarea>
+    <button id="generateBtn">Generate Speech</button>
+    <div id="loading" class="loading">Generating audio...</div>
+    <audio id="audioPlayer" controls></audio>
+
+    <script>
+        document.getElementById('generateBtn').addEventListener('click', async () => {
+            const text = document.getElementById('nepaliText').value.trim();
+            if (!text) {
+                alert('कृपया नेपाली टेक्स्ट टाइप गर्नुहोस्');
+                return;
+            }
+
+            const loading = document.getElementById('loading');
+            const audioPlayer = document.getElementById('audioPlayer');
+            
+            loading.style.display = 'block';
+            audioPlayer.style.display = 'none';
+
+            try {
+                // Call your NestJS API
+                const response = await fetch('http://localhost:3000/tts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Directly play the audio
+                    audioPlayer.src = data.filePath;
+                    audioPlayer.style.display = 'block';
+                    audioPlayer.play();
+                } else {
+                    throw new Error(data.error || 'Unknown error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Audio generation failed: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+
+        // Add to your existing script
+audioPlayer.addEventListener('error', () => {
+    alert('Audio playback failed. Please try again.');
+    loading.style.display = 'none';
+});
+
+audioPlayer.addEventListener('canplay', () => {
+    loading.style.display = 'none';
+    audioPlayer.style.display = 'block';
+});
+    </script>
+</body>
+</html>
+
+
