@@ -1,13 +1,14 @@
+version: '3.8'
 
 services:
-  nepalitts:
+  nepali-tts:
     build: .
     ports:
       - "3000:3000"
     volumes:
       - ./output:/app/output
-      - ./public:/app/public  # Add this line
       - ./src:/app/src       # For development
+      - ./public:/app/public
     environment:
       - NODE_ENV=production
     restart: unless-stopped
